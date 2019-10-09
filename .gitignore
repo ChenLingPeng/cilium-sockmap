@@ -1,0 +1,13 @@
+/.idea
+/.vagrant
+/.vscode
+
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.so
+*.so.*
+
+# LLVM IR files
+*.ll
+*.ll-*
