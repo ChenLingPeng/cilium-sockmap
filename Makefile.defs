@@ -1,0 +1,53 @@
+SHELL := /bin/bash
+.SHELLFLAGS := -eu -o pipefail -c
+
+ROOT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+RELATIVE_DIR := $(shell echo $(realpath .) | sed "s;$(ROOT_DIR)[/]*;;")
+include $(ROOT_DIR)/Makefile.quiet
+
+PREFIX?=/usr
+BINDIR?=$(PREFIX)/bin
+CNIBINDIR?=/opt/cni/bin
+CNICONFDIR?=/etc/cni/net.d
+LIBDIR?=$(PREFIX)/lib
+RUNDIR?=/var/run
+CONFDIR?=/etc
+
+ifeq ($(GO),)
+	GO = go
+endif
+INSTALL = $(QUIET)install
+
+CGO_DISABLED = CGO_ENABLED=0
+VERSION = $(shell cat $(dir $(lastword $(MAKEFILE_LIST)))/VERSION)
+VERSION_MAJOR = $(shell cat $(dir $(lastword $(MAKEFILE_LIST)))/VERSION | cut -d. -f1)
+# Use git only if in a Git repo
+ifneq ($(wildcard $(dir $(lastword $(MAKEFILE_LIST)))/.git),)
+	GIT_VERSION = $(shell git show -s --format='format:%h %aI')
+else
+	GIT_VERSION = $(shell cat $(ROOT_DIR)/GIT_VERSION)
+endif
+BUILD = $(VERSION) $(GIT_VERSION) $(shell go version)
+GOLDFLAGS = -X "github.com/ChenLingPeng/lighting/pkg/version.Version=$(BUILD)"
+
+
+# Set DOCKER_IMAGE_TAG with "latest" by default
+ifeq ($(DOCKER_IMAGE_TAG),)
+    DOCKER_IMAGE_TAG="latest"
+endif
+
+GOBUILD = -ldflags '$(GOLDFLAGS)' $(EXTRA_GOBUILD_FLAGS)
+
+# Uncomment to enable race detection
+#GOBUILD += -race
+
+# Uncomment to enable deadlock detection
+#GOBUILD += -tags lockdebug
+
+ifneq ($(LOCKDEBUG),)
+    GOBUILD += -tags lockdebug
+endif
+
+# Container engine
+CONTAINER_ENGINE?=docker
+CONTAINER_ENGINE_FULL=$(QUIET)$(CONTAINER_ENGINE)
