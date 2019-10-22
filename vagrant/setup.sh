@@ -18,4 +18,5 @@ apt-get install -y \
   clang \
   gcc-multilib \
   zlib1g-dev \
-  libelf-dev
+  libelf-dev \
+  binutils-dev
