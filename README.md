@@ -4,6 +4,10 @@ is a project inspired by cilium to accelerate istio network using ebpf sockops &
 
 # how to test
 
+0. setup vagrant vm
+
+> enter into vm, `git clone --depth=1 https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git` and build bpftool
+
 1. build envoy image under envoy directory(or just pull image [chenlingpeng/envoy-demo](https://hub.docker.com/r/chenlingpeng/envoy-demo))
 2. setup test container (simulate istio pod with an envoy sidecar in one network space)
 
